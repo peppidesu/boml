@@ -321,18 +321,18 @@ fn weird_formats() {
 }
 
 trait TomlTestUtils {
-	fn assert_value(&self, key: &str, expected_value: TomlValue<'_>);
-	fn assert_values(&self, expected_values: Vec<(&str, TomlValue<'_>)>);
+	fn assert_value(&self, key: &str, expected_value: TomlValue<'_, '_>);
+	fn assert_values(&self, expected_values: Vec<(&str, TomlValue<'_, '_>)>);
 	fn assert_strings(&self, strings: Vec<(&str, &str)>);
 }
 
 impl TomlTestUtils for Toml<'_> {
 	#[inline]
-	fn assert_value(&self, key: &str, expected_value: TomlValue<'_>) {
+	fn assert_value(&self, key: &str, expected_value: TomlValue<'_, '_>) {
 		assert_eq!(*self.get(key).unwrap(), expected_value);
 	}
 	#[inline]
-	fn assert_values(&self, expected_values: Vec<(&str, TomlValue<'_>)>) {
+	fn assert_values(&self, expected_values: Vec<(&str, TomlValue<'_,'_>)>) {
 		for (key, expected_value) in expected_values {
 			self.assert_value(key, expected_value);
 		}

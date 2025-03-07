@@ -4,7 +4,7 @@ use std::f64;
 
 use crate::{table::TomlTable, text::Text, types::TomlValue, TomlError, TomlErrorKind};
 
-pub fn parse_value<'a>(text: &mut Text<'a>) -> Result<TomlValue<'a>, TomlError<'a>> {
+pub fn parse_value<'a>(text: &mut Text<'a>) -> Result<TomlValue<'a, 'a>, TomlError<'a>> {
 	match text.current_byte() {
 		Some(b'\'') | Some(b'"') => {
 			crate::parser::string::parse_string(text).map(TomlValue::String)

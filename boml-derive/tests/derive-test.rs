@@ -37,9 +37,10 @@ fn test_derive_struct_unnamed() {
         0 = 42
         1 = "hello"
     "#;
-	let toml = boml::parse(toml).unwrap();
-	let v = TomlValue::Table(toml.into());
+	let toml = boml::parse(toml).unwrap();	
+	let v = TomlValue::TableBorrowed(&toml);
 	let actual = Test::from_toml(Some(&v));
+	drop(v);
 
 	assert!(actual.is_ok());
 	assert_eq!(Test(42, "hello".to_string()), actual.unwrap());

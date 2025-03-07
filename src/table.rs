@@ -18,7 +18,7 @@ use {
 /// A set of key/value pairs in TOML.
 #[derive(Debug, PartialEq, Default)]
 pub struct TomlTable<'a> {
-	pub(crate) map: HashMap<CowSpan<'a>, TomlValue<'a>>,
+	pub(crate) map: HashMap<CowSpan<'a>, TomlValue<'a, 'a>>,
 }
 impl<'a> TomlTable<'a> {
 	/// Gets the value for a key, if that value is a table.
@@ -84,7 +84,7 @@ impl<'a> TomlTable<'a> {
 		}
 	}
 	/// Gets the value for a key, if that value is an array.
-	pub fn get_array(&'a self, key: &str) -> Result<&'a Vec<TomlValue<'a>>, TomlGetError<'a>> {
+	pub fn get_array(&'a self, key: &str) -> Result<&'a Vec<TomlValue<'a, 'a>>, TomlGetError<'a>> {
 		match self.get(key) {
 			None => Err(TomlGetError::InvalidKey),
 			Some(ref val) => {
@@ -100,7 +100,7 @@ impl<'a> TomlTable<'a> {
 	pub(crate) fn value_entry<'b>(
 		&'b mut self,
 		text: &mut Text<'a>,
-	) -> Result<VacantEntry<'b, CowSpan<'a>, TomlValue<'a>>, TomlError<'a>> {
+	) -> Result<VacantEntry<'b, CowSpan<'a>, TomlValue<'a, 'a>>, TomlError<'a>> {
 		let start = text.idx();
 		let (table, key) = crate::parser::key::parse_nested(text, self)?;
 
@@ -114,7 +114,7 @@ impl<'a> TomlTable<'a> {
 	}
 }
 impl<'a> Deref for TomlTable<'a> {
-	type Target = HashMap<CowSpan<'a>, TomlValue<'a>>;
+	type Target = HashMap<CowSpan<'a>, TomlValue<'a, 'a>>;
 
 	fn deref(&self) -> &Self::Target {
 		&self.map
@@ -128,7 +128,7 @@ pub enum TomlGetError<'a> {
 	InvalidKey,
 	/// The value for the provided key had a different type. Stores the
 	/// value for that key and its type.
-	TypeMismatch(&'a TomlValue<'a>, TomlValueType),
+	TypeMismatch(&'a TomlValue<'a, 'a>, TomlValueType),
 }
 
 #[cfg(test)]
@@ -137,7 +137,7 @@ mod tests {
 
 	struct Tester {
 		key: &'static str,
-		value: TomlValue<'static>,
+		value: TomlValue<'static, 'static>,
 	}
 	impl Tester {
 		fn build(self) -> TomlTable<'static> {

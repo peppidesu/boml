@@ -12,7 +12,7 @@ fn is_end_of_float(byte: u8) -> bool {
 
 // TODO: This doesn't prevent parsing date/times with a sign in front, which
 // isn't valid TOML
-pub fn parse_sign<'a>(text: &mut Text<'a>) -> Result<TomlValue<'a>, TomlError<'a>> {
+pub fn parse_sign<'a>(text: &mut Text<'a>) -> Result<TomlValue<'a, 'a>, TomlError<'a>> {
 	match text.current_byte() {
 		Some(b'+') => {
 			text.next();
@@ -29,7 +29,7 @@ pub fn parse_sign<'a>(text: &mut Text<'a>) -> Result<TomlValue<'a>, TomlError<'a
 pub fn parse_number<'a>(
 	text: &mut Text<'a>,
 	negative: bool,
-) -> Result<TomlValue<'a>, TomlError<'a>> {
+) -> Result<TomlValue<'a, 'a>, TomlError<'a>> {
 	let start = text.idx();
 
 	if text.current_byte() == Some(b'0') {

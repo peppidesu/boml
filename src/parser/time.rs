@@ -29,7 +29,7 @@ pub fn parse_date<'a>(
 	year: u16,
 	start: usize,
 	text: &mut Text<'a>,
-) -> Result<TomlValue<'a>, TomlError<'a>> {
+) -> Result<TomlValue<'a, 'a>, TomlError<'a>> {
 	debug_assert_eq!(text.current_byte(), Some(b'-'));
 	text.next();
 

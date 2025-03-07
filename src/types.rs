@@ -4,7 +4,7 @@ use crate::{table::TomlTable, text::CowSpan};
 
 /// A value in TOML.
 #[derive(Debug, PartialEq)]
-pub enum TomlValue<'a> {
+pub enum TomlValue<'a, 'b: 'a> {
 	/// A string value.
 	///
 	/// This type is used for both TOML's basic string and literal string types.
@@ -54,8 +54,10 @@ pub enum TomlValue<'a> {
 	Array(Vec<Self>, bool),
 	/// A table of key/value pairs.
 	Table(TomlTable<'a>),
+	/// borrowed table. Used for derive
+	TableBorrowed(&'b TomlTable<'a>),
 }
-impl<'a> TomlValue<'a> {
+impl<'a, 'b: 'a> TomlValue<'a, 'b> {
 	/// The type of this value.
 	pub fn ty(&self) -> TomlValueType {
 		match *self {
@@ -69,6 +71,7 @@ impl<'a> TomlValue<'a> {
 			Self::OffsetDateTime(_) => TomlValueType::OffsetDateTime,
 			Self::Array(_, _) => TomlValueType::Array,
 			Self::Table(_) => TomlValueType::Table,
+			Self::TableBorrowed(_) => TomlValueType::TableBorrowed,
 		}
 	}
 
@@ -182,42 +185,42 @@ impl<'a> TomlValue<'a> {
 	}
 }
 
-impl<'a> TryFrom<&'a TomlValue<'a>> for bool {
+impl<'a, 'b: 'a> TryFrom<&'a TomlValue<'a, 'b>> for bool {
 	type Error = ();
 
-	fn try_from(value: &'a TomlValue<'a>) -> Result<Self, Self::Error> {
+	fn try_from(value: &'a TomlValue<'a, 'b>) -> Result<Self, Self::Error> {
 		value.as_bool().ok_or(())
 	}
 }
 
-impl<'a> TryFrom<&'a TomlValue<'a>> for i64 {
+impl<'a, 'b: 'a> TryFrom<&'a TomlValue<'a, 'b>> for i64 {
 	type Error = ();
 
-	fn try_from(value: &'a TomlValue<'a>) -> Result<Self, Self::Error> {
+	fn try_from(value: &'a TomlValue<'a, 'b>) -> Result<Self, Self::Error> {
 		value.as_integer().ok_or(())
 	}
 }
 
-impl<'a> TryFrom<&'a TomlValue<'a>> for f64 {
+impl<'a, 'b: 'a> TryFrom<&'a TomlValue<'a, 'b>> for f64 {
 	type Error = ();
 
-	fn try_from(value: &'a TomlValue<'a>) -> Result<Self, Self::Error> {
+	fn try_from(value: &'a TomlValue<'a, 'b>) -> Result<Self, Self::Error> {
 		value.as_float().ok_or(())
 	}
 }
 
-impl<'a> TryFrom<&'a TomlValue<'a>> for String {
+impl<'a, 'b: 'a> TryFrom<&'a TomlValue<'a, 'b>> for String {
 	type Error = ();
 
-	fn try_from(value: &'a TomlValue<'a>) -> Result<Self, Self::Error> {
+	fn try_from(value: &'a TomlValue<'a, 'b>) -> Result<Self, Self::Error> {
 		value.as_string().map(|v| v.to_owned()).ok_or(())
 	}
 }
 
-impl<'a> TryFrom<&'a TomlValue<'a>> for &'a str {
+impl<'a, 'b: 'a> TryFrom<&'a TomlValue<'a, 'b>> for &'a str {
 	type Error = ();
 
-	fn try_from(value: &'a TomlValue<'a>) -> Result<Self, Self::Error> {
+	fn try_from(value: &'a TomlValue<'a, 'b>) -> Result<Self, Self::Error> {
 		value.as_string().ok_or(())
 	}
 }
@@ -237,6 +240,7 @@ pub enum TomlValueType {
 	OffsetDateTime,
 	Array,
 	Table,
+	TableBorrowed
 }
 
 /// An offset from UTC time.

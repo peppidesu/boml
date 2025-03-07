@@ -96,6 +96,7 @@ fn derive_unnamed_struct(ident: Ident, generics: Generics, fields: FieldsUnnamed
 				-> Result<Self, FromTomlError<'__boml_derive_a>> {
 				match value {
 					Some(TomlValue::Table(table)) => Ok(#ctor),
+					Some(TomlValue::TableBorrowed(table)) => Ok(#ctor),
 					Some(v) => Err(FromTomlError::TypeMismatch(v, TomlValueType::Table)),
 					None => Err(FromTomlError::Missing),
 				}
